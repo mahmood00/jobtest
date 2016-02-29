@@ -1,0 +1,28 @@
+<div class="container">
+
+        <h2 class="form-signin-heading">Search</h2>
+        <input type="text"  class="form-control search-input" placeholder="City" required autofocus ng-model="vm.city">
+        <button class="btn btn-lg btn-primary search-btn" ng-click="vm.search()">Search</button>
+
+        <div class="row ">
+            <div class="col-sm-12">
+                <table class="table table-condensed result-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tour Name</th>
+                            <th>City</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="row in vm.result">
+                            <th>{{ row.id | number : 0}}</th>
+                             <td>{{ row.Name }}</td>
+                            <td>{{ row.City }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</div> <!-- /container -->
+
