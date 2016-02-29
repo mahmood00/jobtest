@@ -17,34 +17,70 @@ class Tour extends CI_Controller {
     public function search()
     {
         $city = $this->input->post('city');
+        $requestXml = $this->getRequestXml($city);
+
+        $responseXML = $this->sendRequestToGetData('http://localhost/test/b/index.php/tour/search', $requestXml);
+        $response = simplexml_load_string($responseXML);
+        $responseArray = json_decode(json_encode((array) $response), 1);
+
         $queryA = $this->tour_model->getToursByCity($city);
-        $queryB = $this->getDataFromB();
+        $queryAResult = $queryA->result_array();
+        if (!isset($responseArray['tour'][0]) && isset($responseArray['tour'])){
+            // in this case the result contain one tour and its not a multidimensional;
+            $responseArray['tour'] = array($responseArray['tour']);
+        }
+        if(isset($responseArray['tour'])){
+            $allTours = array_merge($responseArray['tour'],$queryAResult);
+
+        } else {
+            $allTours = $queryAResult;
+
+        }
         return $this->output
             ->set_content_type('application/json')
             ->set_status_header(200)
-            ->set_output(json_encode($queryA->result()));
+            ->set_output(json_encode($allTours));
     }
-    private function getDataFromB(){
-
+    private function getRequestXml($city){
+        $request = array(
+            "city" => $city,
+            "auth" => array(
+                'username' => 'mahmood',
+                'password' => 'mahmood123'
+            )
+        );
+        $xmlData = new SimpleXMLElement('<?xml version="1.0"?><toursrequest></toursrequest>');
+        $this->arrayToXml($request,$xmlData);
+        $result = $xmlData->asXML();
+        return $result;
     }
-    public function postCURL($_url, $_param){
-
-        $postData = '';
-        //create name value pairs seperated by &
-        foreach($_param as $k => $v)
-        {
-            $postData .= $k . '='.$v.'&';
+    private function arrayToXml( $data, &$xml_data ) {
+        foreach( $data as $key => $value ) {
+            if( is_array($value) ) {
+                if( is_numeric($key) ){
+                    $key = 'item'.$key;
+                }
+                $subnode = $xml_data->addChild($key);
+                $this->arrayToXml($value, $subnode);
+            } else {
+                $xml_data->addChild("$key",htmlspecialchars("$value"));
+            }
         }
-        rtrim($postData, '&');
-
+    }
+    public function sendRequestToGetData($url, $xml){
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL,$_url);
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_POST, count($postData));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        //curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_POST, count($xml));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-type: application/xml',
+            'Content-length: ' . strlen($xml)
+        ));
         $output=curl_exec($ch);
 
         curl_close($ch);

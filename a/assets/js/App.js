@@ -49,15 +49,29 @@ angular.module('toursApp', ['ngRoute'])
         }
 
     }])
-    .controller('SearchController', function() {
+    .controller('SearchController', ['$http','$httpParamSerializerJQLike',function($http, $httpParamSerializerJQLike) {
         var vm = this;
         vm.result = [];
         vm.search = function(){
             var city = vm.city;
-            for(var i=0; i< 10 ; i++){
+            $http.post('index.php/tour/search', $httpParamSerializerJQLike({
+                    city: city
+                }),{
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+                }
+            ).success(function(data, status, headers, config) {
+                console.log(data);
+                vm.result = data;
+
+
+            }).error(function(data, status) {
+
+
+            });
+            /*for(var i=0; i< 10 ; i++){
                 var temp = {id: 10+ Math.random() * 100, Name: 'Here' + Math.random(), City: 'City1' + Math.random()};
                 vm.result.push(temp);
-            }
+            }*/
         }
 
-    });
+    }]);
