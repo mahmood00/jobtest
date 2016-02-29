@@ -28,7 +28,6 @@ class Tour extends CI_Controller {
         }
 
     }
-
     function arrayToXml( $data, &$xml_data ) {
         foreach( $data as $key => $value ) {
             if( is_array($value) ) {

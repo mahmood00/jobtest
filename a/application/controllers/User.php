@@ -5,8 +5,6 @@ class User extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->helper('form');
-        $this->load->library('form_validation');
-        $this->load->library('session');
         $this->load->model('user_model');
 
     }
@@ -34,9 +32,11 @@ class User extends CI_Controller {
             ->set_output(json_encode($result));
     }
     private function isLogin(){
-        if(!$this->session->userdata('validated')){
-            redirect('login');
+        $session = $this->session->userdata('logged_in');
+        if(isset($session) && isset($session['validated']) && $session['validated'] == true){
+            return true;
         }
+        return false;
     }
     public function createUser($username)
     {

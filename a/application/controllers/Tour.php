@@ -9,17 +9,36 @@ class Tour extends CI_Controller {
         $this->load->library('session');
         $this->load->model('tour_model');
         if(!$this->isLogin()){
-            //echo json_encode(array("error" => 'Please Login!!'));
-            //exit();
+            echo json_encode(array("error" => 'Please Login!!'));
+            exit();
         }
     }
-
+    private function validateXml($xml, $xsd){
+        $doc = new DOMDocument();
+        $doc->loadXML($xml);
+        libxml_use_internal_errors(true);
+        $isValidXml = $doc->schemaValidate($xsd);
+        libxml_use_internal_errors(false);
+        return $isValidXml;
+    }
     public function search()
     {
         $city = $this->input->post('city');
         $requestXml = $this->getRequestXml($city);
+        if(!$this->validateXml($requestXml, APPPATH.'helpers\\tours_request.xsd')){
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(200)
+                ->set_output(json_encode(array('error' => 'invalid XML format')));
+        }
 
         $responseXML = $this->sendRequestToGetData('http://localhost/test/b/index.php/tour/search', $requestXml);
+        if(!$this->validateXml($responseXML, APPPATH.'helpers\\tours.xsd')){
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(200)
+                ->set_output(json_encode(array('error' => 'invalid XML format')));
+        }
         $response = simplexml_load_string($responseXML);
         $responseArray = json_decode(json_encode((array) $response), 1);
 
@@ -88,9 +107,10 @@ class Tour extends CI_Controller {
         return $output;
     }
     private function isLogin(){
-        if(!$this->session->userdata('validated')){
-            return false;
+        $session = $this->session->userdata('logged_in');
+        if(isset($session) && isset($session['validated']) && $session['validated'] == true){
+            return true;
         }
-        return true;
+        return false;
     }
 }

@@ -49,9 +49,11 @@ angular.module('toursApp', ['ngRoute'])
         }
 
     }])
-    .controller('SearchController', ['$http','$httpParamSerializerJQLike',function($http, $httpParamSerializerJQLike) {
+    .controller('SearchController', ['$http','$httpParamSerializerJQLike', '$window','$scope','$timeout',function($http, $httpParamSerializerJQLike, $window, $scope, $timeout) {
         var vm = this;
         vm.result = [];
+        var allResult = [];
+        var resultShowAt = 9;
         vm.search = function(){
             var city = vm.city;
             $http.post('index.php/tour/search', $httpParamSerializerJQLike({
@@ -60,18 +62,35 @@ angular.module('toursApp', ['ngRoute'])
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
                 }
             ).success(function(data, status, headers, config) {
-                console.log(data);
-                vm.result = data;
-
+                if(data.error){
+                    console.error(data.error);
+                    vm.error = data.error;
+                    return 0;
+                }
+                vm.error = null;
+                allResult = data;
+                resultShowAt = 9;
+                vm.result = allResult.slice(0, resultShowAt + 1);
 
             }).error(function(data, status) {
-
-
+                if(data.error){
+                    vm.error = data.error;
+                }
             });
-            /*for(var i=0; i< 10 ; i++){
-                var temp = {id: 10+ Math.random() * 100, Name: 'Here' + Math.random(), City: 'City1' + Math.random()};
-                vm.result.push(temp);
-            }*/
+
         }
+        angular.element($window).bind("scroll", function() {
+
+            if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+                var oldresultShowAt = resultShowAt;
+                for( ;resultShowAt <= oldresultShowAt + 10 && resultShowAt < allResult.length; resultShowAt++){
+                    vm.result.push(angular.copy(allResult[resultShowAt]));
+
+                }
+            }
+            $timeout(function() {
+                $scope.$apply();
+            });
+        });
 
     }]);

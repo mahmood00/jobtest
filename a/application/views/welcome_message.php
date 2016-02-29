@@ -5,6 +5,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <!doctype html>
 <html ng-app="toursApp">
 <head>
+	<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-resource.min.js">
 	</script>

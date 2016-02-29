@@ -3,7 +3,13 @@
         <h2 class="form-signin-heading">Search</h2>
         <input type="text"  class="form-control search-input" placeholder="City" required autofocus ng-model="vm.city">
         <button class="btn btn-lg btn-primary search-btn" ng-click="vm.search()">Search</button>
-
+        <br>
+        <br>
+        <div class="row">
+            <div class="alert alert-danger col-sm-12" ng-show="vm.error">
+                {{vm.error}}
+            </div>
+        </div>
         <div class="row ">
             <div class="col-sm-12">
                 <table class="table table-condensed result-table">
@@ -28,7 +34,7 @@
                             <td>{{ row.Country }}</td>
                             <td>{{ row.City }}</td>
                             <td>{{ row.Price }}</td>
-                            <td><img style="width:50px;height:50px" ng-src="{{row.Image}}" /></td>
+                            <td><img style="width:100px;height:100px" ng-src="{{row.Image}}" /></td>
                             <td>{{ row.Date }}</td>
                             <td>{{ row.Description }}</td>
                         </tr>
