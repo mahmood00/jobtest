@@ -24,6 +24,9 @@ class Tour extends CI_Controller {
     public function search()
     {
         $city = $this->input->post('city');
+        /**
+         * build request XML and make validation
+         */
         $requestXml = $this->getRequestXml($city);
         if(!$this->validateXml($requestXml, APPPATH.'helpers\\tours_request.xsd')){
             return $this->output
@@ -32,6 +35,9 @@ class Tour extends CI_Controller {
                 ->set_output(json_encode(array('error' => 'invalid XML format')));
         }
 
+        /**
+         * send request xml and get response as XML and validate it.
+         */
         $responseXML = $this->sendRequestToGetData('http://localhost/test/b/index.php/tour/search', $requestXml);
         if(!$this->validateXml($responseXML, APPPATH.'helpers\\tours.xsd')){
             return $this->output
@@ -42,12 +48,19 @@ class Tour extends CI_Controller {
         $response = simplexml_load_string($responseXML);
         $responseArray = json_decode(json_encode((array) $response), 1);
 
+        /**
+         * get data from system a.
+         */
         $queryA = $this->tour_model->getToursByCity($city);
         $queryAResult = $queryA->result_array();
         if (!isset($responseArray['tour'][0]) && isset($responseArray['tour'])){
             // in this case the result contain one tour and its not a multidimensional;
             $responseArray['tour'] = array($responseArray['tour']);
         }
+
+        /**
+         * merge the result from system A and B.
+         */
         if(isset($responseArray['tour'])){
             $allTours = array_merge($responseArray['tour'],$queryAResult);
 
@@ -55,6 +68,10 @@ class Tour extends CI_Controller {
             $allTours = $queryAResult;
 
         }
+
+        /**
+         * return data as json to get it from angularjs.
+         */
         return $this->output
             ->set_content_type('application/json')
             ->set_status_header(200)

@@ -4,7 +4,7 @@
     <xs:element name="tours">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="tour" maxOccurs="unbounded">
+                <xs:element name="tour" maxOccurs="unbounded" minOccurs="0">
                     <xs:complexType>
                         <xs:all>
                             <xs:element name="TourId" type="xs:integer"/>
