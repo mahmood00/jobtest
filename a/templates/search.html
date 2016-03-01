@@ -10,6 +10,11 @@
                 {{vm.error}}
             </div>
         </div>
+        <div class="row">
+            <div class="alert alert-info col-sm-12" ng-show="vm.info">
+                {{vm.info}}
+            </div>
+        </div>
         <div class="row ">
             <div class="col-sm-12">
                 <table class="table table-condensed result-table">
@@ -27,7 +32,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="row in vm.result">
+                        <tr ng-repeat="row in vm.result | limitTo: vm.resultShowAt">
                             <th>{{ row.TourId}}</th>
                              <td>{{ row.TourName }}</td>
                             <td>{{ row.TourCode }}</td>

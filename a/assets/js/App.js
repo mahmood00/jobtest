@@ -1,11 +1,6 @@
 
 angular.module('toursApp', ['ngRoute'])
     .config(function($routeProvider) {
-        /*var resolveProjects = {
-            projects: function (Projects) {
-                return Projects.fetch();
-            }
-        };*/
 
         $routeProvider
             .when('/', {
@@ -53,7 +48,7 @@ angular.module('toursApp', ['ngRoute'])
         var vm = this;
         vm.result = [];
         var allResult = [];
-        var resultShowAt = 9;
+        vm.resultShowAt = 10;
         vm.search = function(){
             var city = vm.city;
             $http.post('index.php/tour/search', $httpParamSerializerJQLike({
@@ -67,10 +62,18 @@ angular.module('toursApp', ['ngRoute'])
                     vm.error = data.error;
                     return 0;
                 }
+                if(data.length == 0){
+                    vm.info = "No Result";
+                } else {
+                    vm.info = null;
+                }
                 vm.error = null;
                 allResult = data;
-                resultShowAt = 9;
-                vm.result = allResult.slice(0, resultShowAt + 1);
+                allResult.sort(function(a, b){
+                    return  b.TourId - a.TourId;
+                })
+                vm.resultShowAt = 10;
+                vm.result = allResult;
 
             }).error(function(data, status) {
                 if(data.error){
@@ -82,11 +85,10 @@ angular.module('toursApp', ['ngRoute'])
         angular.element($window).bind("scroll", function() {
 
             if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
-                var oldresultShowAt = resultShowAt;
-                for( ;resultShowAt <= oldresultShowAt + 10 && resultShowAt < allResult.length; resultShowAt++){
-                    vm.result.push(angular.copy(allResult[resultShowAt]));
-
+                if(vm.resultShowAt < allResult.length){
+                    vm.resultShowAt += 10;
                 }
+
             }
             $timeout(function() {
                 $scope.$apply();
