@@ -15,18 +15,18 @@ class Tour extends CI_Controller {
     {
         $xml = file_get_contents('php://input');
         $request = simplexml_load_string($xml);
+        $xmlData = new SimpleXMLElement('<?xml version="1.0"?><tours></tours>');
         if($request->auth->username == 'mahmood' && $request->auth->password == 'mahmood123'){
             $queryB = $this->tour_model->getToursByCity($request->city);
             $result = $queryB->result_array();
-            $xmlData = new SimpleXMLElement('<?xml version="1.0"?><tours></tours>');
             $this->arrayToXml($result, $xmlData);
-            $XMLResult = $xmlData->asXML();
-            return $this->output
-                ->set_content_type('text/xml')
-                ->set_status_header(200)
-                ->set_output($XMLResult);
-        }
 
+        }
+        $XMLResult = $xmlData->asXML();
+        return $this->output
+            ->set_content_type('text/xml')
+            ->set_status_header(200)
+            ->set_output($XMLResult);
     }
     function arrayToXml( $data, &$xml_data ) {
         foreach( $data as $key => $value ) {
