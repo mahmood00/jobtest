@@ -1,0 +1,39 @@
+Login Page:
+when you login, the application will redirect you to the search page.
+
+Search Page:
+you can create search by city of tour.
+When you click on search button the angular will send
+request to the system A , with city that you intered on the text input.
+then system A will get the data from it's database `test_a` as array.
+and it will build XML Request to send it to system B , contains city and Auth data.
+then validate it using XSD file "tour_request.xsd" to check if it has correct XML format and correct data.
+then it will send the XML to System B with header "application/xml"  by CURL.
+
+In system B will receive the XML and convert it to object to check auth data, and get the city, 
+after query on the tour from database `test_b` it will build the tours data as XML and return it using output
+class in CI as XML response with "text/xml" as content type.
+
+then system A will receive the XML responce and validate it using XSD file "tours.xsd",
+after that will convert these data to array , and merge it with data that we got it from system A .
+
+then system A will return the data as json output to help angular to parse and convert it to array of objects.
+
+after that angular will display them on the result space sorted and with limit 10 rows,
+and when you scroll to the bottom of the page it will load another 10 rows.
+
+
+How To Run the Application:
+	1- import the database files : 'test_a' and 'test_b'
+	2- CI mysql database config : username is 'root' ,and the password is empty.
+	3- and this is login page : http://SERVER/a/index.php#/
+	4- if you import my DB files , you can login by username : 'mahood' and password: 'mahmood'.
+	5- and both of DB files contain three cities: 'dubai', 'tulkarem', 'nablus'.
+	6- when you search by 'dubai' city there are more than 10 result ,
+		so the page will just display 10 rows, and when you scroll at the bottom the page will load another rows.
+		
+		
+Note:
+	you can create new user by this url 
+	http://SERVER/a/index.php/user/createUser/mahmood
+	pass your username as parameter for createUser action and the password will be the same.
